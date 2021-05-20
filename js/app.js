@@ -6,26 +6,34 @@
 var catDisplayView = {
 
     init : function() {
-        this.name_view  = $("#catnameview")[0];
-        this.img_view   = $("#catimgview")[0];
-        this.count_view = $("#catcountview")[0];
+        this.img_view        = $("#catimgview")[0];
+        this.count_view      = $("#catcountview")[0];
+        this.catlike_view    = $("#catlike")[0];
+        this.catdislike_view = $("#catdislike")[0];
 
         this.render();
     },
 
-    buttonClicked : function(cat) {
+    catLiked : function(cat) {
         return function() {
             octopus.catClicked(cat);
         }
     },
 
+    catDisliked : function(cat) {
+        return function() {
+            alert("Are you crazy?! " + cat.name + " super cute!");
+        }
+    },
+
+
     render : function() {
         var cat = octopus.getCurrentCat();
 
-        //this.name_view.innerHTML  = cat.name;
-        this.img_view.src         = cat.img;
-        this.count_view.innerHTML = "Click Count: " + cat.numclicks;
-        this.img_view.onclick     = this.buttonClicked(cat); 
+        this.img_view.src            = cat.img;
+        this.count_view.innerHTML    = "Likes: " + cat.numclicks;
+        this.catlike_view.onclick    = this.catLiked(cat);
+        this.catdislike_view.onclick = this.catDisliked(cat);
     } 
 }
 
