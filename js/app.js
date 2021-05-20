@@ -3,6 +3,163 @@
 /********************************************************************/
 (function () {
 
+var catEditView = {
+
+    _createNameEditor : function() {
+        var nameform = document.createElement("div");
+
+        nameform.classList.add("form-group");
+
+        var label = document.createElement("label");
+        label.innerHTML = "Cat Name";
+
+        var input = document.createElement("input");
+        input.classList.add("form-control");
+
+        nameform.appendChild(label);
+        nameform.appendChild(input);
+
+        this.catnameinput = input;
+
+        return nameform;
+    },
+
+    _createImgEditor : function() {
+        var img = document.createElement("div");
+
+        img.classList.add("form-group");
+
+        var label = document.createElement("label");
+        label.innerHTML = "Cat Img";
+
+        var input = document.createElement("input");
+        input.classList.add("form-control");
+
+        img.appendChild(label);
+        img.appendChild(input);
+
+        this.catimginput = input;
+
+        return img;
+    },
+
+    _createLikesEditor : function() {
+        var likes = document.createElement("div");
+
+        likes.classList.add("form-group");
+
+        var label = document.createElement("label");
+        label.innerHTML = "Cat likes";
+
+        var input = document.createElement("input");
+        input.classList.add("form-control");
+
+        likes.appendChild(label);
+        likes.appendChild(input);
+
+        this.catlikesinput = input;
+
+        return likes;
+    },
+
+    _createSaveButton : function() {
+        var button = document.createElement("button");
+
+        button.innerHTML = "Save";
+        button.classList.add("btn");
+        button.classList.add("btn-success");
+        button.onclick = this.saveClicked;
+
+        return button;
+    },
+
+    _createCancelButton : function() {
+        var button = document.createElement("button");
+
+        button.innerHTML = "Cancel";
+        button.classList.add("btn");
+        button.classList.add("btn-danger");
+        button.onclick = this.editCancelled;
+
+        return button;
+    },
+
+    init : function(parentview) {
+        this.catedit_view = parentview;
+
+        this.catnameform  = this._createNameEditor(); 
+        this.catimgform   = this._createImgEditor();
+        this.catlikesform = this._createLikesEditor();
+
+        this.savebutton   = this._createSaveButton();
+        this.cancelbutton = this._createCancelButton();
+
+        return this;
+    },
+
+    saveClicked : function() {
+        var newcatname  = catEditView.catnameinput.value;   
+        var newcatimg   = catEditView.catimginput.value;
+        var newcatlikes = catEditView.catlikesinput.value;
+
+        octopus.editCat(octopus.getCurrentCat(), newcatname, newcatimg, newcatlikes);
+    },
+
+    editCancelled : function() {
+        octopus.editCancelled();
+    },
+
+    render : function() {
+        cat = octopus.getCurrentCat();
+
+        this.catnameinput.value  = cat.name;
+        this.catimginput.value   = cat.img;
+        this.catlikesinput.value = cat.numclicks;
+
+        this.catedit_view.append(this.catnameform);
+        this.catedit_view.append(this.catimgform);
+        this.catedit_view.append(this.catlikesform);
+        this.catedit_view.append(this.savebutton);
+        this.catedit_view.append(this.cancelbutton);
+    } 
+}
+
+var adminView = {
+
+    init : function() {
+        this.admin_view  = $("#adminview");
+        this.cateditview = catEditView.init(this.admin_view);
+
+        this.render();
+    },
+
+    adminButtonClicked : function(view) {
+        octopus.adminButtonClicked();
+    },
+
+    render : function() {
+        var button = document.createElement("button");
+        
+        // silly but just removing all elements and rerendering everything
+        this.admin_view.empty();
+
+        // admin button always shows
+        var adminbutton = document.createElement("button");
+        adminbutton.id = 'admin_button';
+        adminbutton.innerHTML = "Edit Cat";
+        adminbutton.classList.add("btn");
+        adminbutton.classList.add("btn-primary");
+        adminbutton.onclick = this.adminButtonClicked;
+
+        this.admin_view.append(adminbutton);
+
+        // displaying cat editor if in admin mode
+        if (octopus.isAdminMode()) {
+            this.cateditview.render();
+        }
+    },
+}
+
 var catDisplayView = {
 
     init : function() {
@@ -25,7 +182,6 @@ var catDisplayView = {
             alert("Are you crazy?! " + cat.name + " super cute!");
         }
     },
-
 
     render : function() {
         var cat = octopus.getCurrentCat();
@@ -85,16 +241,26 @@ function Cat(id, name, img) {
 };
 
 var model = {
+    
     cats : [
-        new Cat('cat_1', 'bella', 'imgs/cute_cat_1.jpeg'),
-        new Cat('cat_2', 'beast', 'imgs/cute_cat_2.jpeg'),
-        new Cat('cat_3', 'bubba', 'imgs/cute_cat_3.jpeg'),
-        new Cat('cat_4', 'barly', 'imgs/cute_cat_4.jpeg'),
-        new Cat('cat_5', 'bartangolus', 'imgs/cute_cat_5.jpeg')
+        new Cat(0, 'bella', 'imgs/cute_cat_1.jpeg'),
+        new Cat(1, 'beast', 'imgs/cute_cat_2.jpeg'),
+        new Cat(2, 'bubba', 'imgs/cute_cat_3.jpeg'),
+        new Cat(3, 'barly', 'imgs/cute_cat_4.jpeg'),
+        new Cat(4, 'bartangolus', 'imgs/cute_cat_5.jpeg')
     ],
 
     init : function() {
         this.setCurrentCat(this.cats[0]);
+        this.setAdminMode(false);
+    },
+
+    setAdminMode : function(boolval) {
+        this.adminmode = boolval;   
+    },
+
+    isAdminMode : function() {
+        return this.adminmode;
     },
 
     setCurrentCat : function(cat) {
@@ -109,6 +275,18 @@ var model = {
         return this.cats;
     },
 
+    updateCatName : function(cat, newname) {
+        this.cats[cat.id].name = newname;
+    },
+
+    updateCatImg : function(cat, newimg) {
+        this.cats[cat.id].img = newimg;
+    },
+
+    updateCatLikes : function(cat, newlikes) {
+        this.cats[cat.id].numclicks = newlikes;
+    },
+
     incrementClickCount : function(cat) {
         cat.numclicks++;
     }
@@ -119,6 +297,7 @@ var octopus = {
         model.init();
         catListView.init();
         catDisplayView.init();
+        adminView.init();
     },
     
     getCurrentCat : function() {
@@ -127,6 +306,25 @@ var octopus = {
 
     getCats : function() {
         return model.getCats();
+    },
+
+    editCat : function(cat, newname, newimg, newnumlikes) {
+        if (newname != "") {
+            model.updateCatName(cat, newname);
+        }
+
+        if (newimg != "") {
+            model.updateCatImg(cat, newimg);
+        }
+
+        if (newnumlikes != "") {
+            model.updateCatLikes(cat, newnumlikes);
+        }
+
+        model.setAdminMode(false);
+        catListView.render();
+        catDisplayView.render();
+        adminView.render();
     },
 
     catSelected : function(cat) {
@@ -138,6 +336,20 @@ var octopus = {
     catClicked : function(cat) {
         model.incrementClickCount(cat);
         catDisplayView.render(cat);
+    },
+
+    adminButtonClicked : function() {
+        model.setAdminMode(true);
+        adminView.render();
+    },
+
+    editCancelled : function() {
+        model.setAdminMode(false);
+        adminView.render();
+    },
+
+    isAdminMode : function() {
+        return model.isAdminMode();
     }
 }
 
