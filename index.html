@@ -19,7 +19,16 @@
     <div class="container">
         <!-- Cat List -->
         <div class="row">
-            <div class="col text-center" id="catlist"></div> 
+            <div class="col text-center" id="catlist">
+                <div data-bind="foreach: cats">
+                    <!-- ko if: ($data === ($parent.currentcat())) -->
+                    <button data-bind="text: $data.name, click: $parent.setCurrentCat" class="btn btn-primary"></button>
+                    <!-- /ko -->     
+                    <!-- ko ifnot: ($data === ($parent.currentcat())) -->
+                    <button data-bind="text: $data.name, click: $parent.setCurrentCat" class="btn btn-success"></button>
+                    <!-- /ko -->     
+                </div>
+            </div> 
         </div>
 
         <!-- Cat Display -->
@@ -27,29 +36,29 @@
             <div class="col text-center">
                 <div>Cuteness Level: <span data-bind="text: catLevel"></span></div>
             </div>
-            <div class="col text-center">
-                <img class="img-rounded" id="catimgview">
+            <div data-bind="with: currentcat" class="col text-center">
+                <img data-bind="attr: { src: img }" class="img-rounded" id="catimgview">
             </div>
         </div>
-        <div class="row likebtn-margin">
+        <div data-bind="with: currentcat" class="row likebtn-margin">
             <div class="col text-center">
-                <button class="btn-success" id="catlike">
+                <button data-bind="click: $parent.incrementClickCount" class="btn-success">
                     <i class="fa fa-thumbs-up"></i>
                 </button>
-                <button class="btn-danger" id="catdislike">
+                <button data-bind="click: $parent.catDisliked" class="btn-danger">
                     <i class="fa fa-thumbs-down"></i>
                 </button>
-
             </div>
         </div>
         <div class="row">
             <div class="col text-center">
-                <p id="catcountview"></p>
+                <span>Likes: </span>
+                <span data-bind="text: currentcat().numclicks"></span>
             </div>
         </div>
         <div class="row">
             <div class="col text-center">
-                <h4 hlass="nicknametitle">Nicknames</h5>
+                <h4 class="nicknametitle">Nicknames</h5>
                 <div data-bind="with: currentcat">
                 <div data-bind="foreach: nicknames" class="nicknames">
                     <!-- ko if: ($index() === ($parent.nicknames().length - 1)) -->
@@ -64,8 +73,28 @@
         </div>
 
         <div class="row row-margin">
-            <div id="adminview" class="col text-center">
+            <div class="col text-center">
+                <button data-bind="click: editCat" class="btn btn-primary">Edit Cat</button>
             </div>
+            <div class="col text-center" data-bind="if: editmode().entered">
+                <div class="row-margin form-group">
+                    <label>Cat Name</label>
+                    <input data-bind="value: editmode().catname" class="form-control">
+                </div>
+                <div class="row-margin form-group">
+                    <label>Cat Image</label>
+                    <input data-bind="value: editmode().catimg" class="form-control">
+                </div>
+                <div class="row-margin form-group">
+                    <label>Cat Likes</label>
+                    <input data-bind="value: editmode().catlikes" class="form-control">
+                </div>
+                <div class="row-margin form-group">
+                    <label>Cat Nicknames</label>
+                    <input data-bind="value: editmode().catnicknames" class="form-control">
+                </div>
+                <button data-bind="click: saveEdit" class="btn btn-success">Save</button>
+                <button data-bind="click: cancelEdit" class="btn btn-danger">Cancel</button>
         </div>
     </div>
     <div class="margin-bottom"></div>
