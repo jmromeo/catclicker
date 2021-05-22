@@ -62,6 +62,25 @@ var catEditView = {
         return likes;
     },
 
+    _createNicknamesEditor : function() {
+        var nicknames = document.createElement("div");
+
+        nicknames.classList.add("form-group");
+
+        var label = document.createElement("label");
+        label.innerHTML = "Nicknames";
+
+        var input = document.createElement("input");
+        input.classList.add("form-control");
+
+        nicknames.appendChild(label);
+        nicknames.appendChild(input);
+
+        this.nicknamesinput = input;
+
+        return nicknames;
+    },
+
     _createSaveButton : function() {
         var button = document.createElement("button");
 
@@ -87,9 +106,10 @@ var catEditView = {
     init : function(parentview) {
         this.catedit_view = parentview;
 
-        this.catnameform  = this._createNameEditor(); 
-        this.catimgform   = this._createImgEditor();
-        this.catlikesform = this._createLikesEditor();
+        this.catnameform     = this._createNameEditor(); 
+        this.catimgform      = this._createImgEditor();
+        this.catlikesform    = this._createLikesEditor();
+        this.catnicknameform = this._createNicknamesEditor();
 
         this.savebutton   = this._createSaveButton();
         this.cancelbutton = this._createCancelButton();
@@ -100,7 +120,7 @@ var catEditView = {
     saveClicked : function() {
         var newcatname  = catEditView.catnameinput.value;   
         var newcatimg   = catEditView.catimginput.value;
-        var newcatlikes = catEditView.catlikesinput.value;
+        var newcatlikes = parseInt(catEditView.catlikesinput.value);
 
         octopus.editCat(octopus.getCurrentCat(), newcatname, newcatimg, newcatlikes);
     },
@@ -112,13 +132,15 @@ var catEditView = {
     render : function() {
         cat = octopus.getCurrentCat();
 
-        this.catnameinput.value  = cat.name;
-        this.catimginput.value   = cat.img;
-        this.catlikesinput.value = cat.numclicks;
+        this.catnameinput.value   = cat.name;
+        this.catimginput.value    = cat.img;
+        this.catlikesinput.value  = cat.numclicks();
+        this.nicknamesinput.value = cat.nicknames();
 
         this.catedit_view.append(this.catnameform);
         this.catedit_view.append(this.catimgform);
         this.catedit_view.append(this.catlikesform);
+        this.catedit_view.append(this.catnicknameform);
         this.catedit_view.append(this.savebutton);
         this.catedit_view.append(this.cancelbutton);
     } 
@@ -187,7 +209,7 @@ var catDisplayView = {
         var cat = octopus.getCurrentCat();
 
         this.img_view.src            = cat.img;
-        this.count_view.innerHTML    = "Likes: " + cat.numclicks;
+        this.count_view.innerHTML    = "Likes: " + cat.numclicks();
         this.catlike_view.onclick    = this.catLiked(cat);
         this.catdislike_view.onclick = this.catDisliked(cat);
     } 
@@ -233,30 +255,60 @@ var catListView = {
     },
 }
 
-function Cat(id, name, img) {
+function Cat(id, name, img, nicknames) {
     this.id         = id;   // ID of cat resource
     this.name       = name; // Name of cat
     this.img        = img;  // Cat picture
-    this.numclicks  = 0;    // Number of time cat was clicked on
+    this.numclicks  = ko.observable(0);    // Number of times cat was liked on
+    this.nicknames  = ko.observableArray(nicknames);
 };
 
 var model = {
     
-    cats : [
-        new Cat(0, 'bella', 'imgs/cute_cat_1.jpeg'),
-        new Cat(1, 'beast', 'imgs/cute_cat_2.jpeg'),
-        new Cat(2, 'bubba', 'imgs/cute_cat_3.jpeg'),
-        new Cat(3, 'barly', 'imgs/cute_cat_4.jpeg'),
-        new Cat(4, 'bartangolus', 'imgs/cute_cat_5.jpeg')
+    catsArr : [
+        new Cat(0, 'bella', 'imgs/cute_cat_1.jpeg', ["Bee", "Floof Ball", "Beauty"]),
+        new Cat(1, 'beast', 'imgs/cute_cat_2.jpeg', ["Tubby", "Chunky Monkey", "Potatoe"]),
+        new Cat(2, 'bubba', 'imgs/cute_cat_3.jpeg', ["Hunter", "Micio"]),
+        new Cat(3, 'barly', 'imgs/cute_cat_4.jpeg', ["Cucciolo"]),
+        new Cat(4, 'bartangolus', 'imgs/cute_cat_5.jpeg', ["Barty", "Bart"])
     ],
 
     init : function() {
-        this.setCurrentCat(this.cats[0]);
         this.setAdminMode(false);
+        this.cats       = ko.observableArray(this.catsArr);
+        this.currentcat = ko.observable(this.cats()[0]);
+        this.catLevel   = ko.computed(this.computeCurrentCatLevel, this);
+        this.nicknames  = ko.computed(this.currentCatNicknames, this);
+
+        ko.applyBindings(this);
     },
 
-    setAdminMode : function(boolval) {
-        this.adminmode = boolval;   
+    currentCatNicknames : function() {
+        return this.getCurrentCat().nicknames();
+    },
+
+    computeCurrentCatLevel : function() {
+        var cat = this.getCurrentCat();
+
+        if (cat.numclicks() < 10) {
+            return "kinda cute!";
+        }
+        else if (cat.numclicks() < 20) {
+            return "cute";
+        }
+        else if (cat.numclicks() < 30) {
+            return "really cute";
+        }
+        else if (cat.numclicks() < 100) {
+            return "SOOOO CUTE";
+        }
+        else {
+            return "SO FLUFFY, I'M GOING TO DIE";
+        }
+    },
+
+    setAdminMode : function(val) {
+        this.adminmode = val;   
     },
 
     isAdminMode : function() {
@@ -264,31 +316,31 @@ var model = {
     },
 
     setCurrentCat : function(cat) {
-        this.currentcat = cat;
+        this.currentcat(cat);
     },
 
     getCurrentCat : function() {
-        return this.currentcat;
+        return this.currentcat();
     },
 
     getCats : function() {
-        return this.cats;
+        return this.cats();
     },
 
     updateCatName : function(cat, newname) {
-        this.cats[cat.id].name = newname;
+        this.cats()[cat.id].name = newname;
     },
 
     updateCatImg : function(cat, newimg) {
-        this.cats[cat.id].img = newimg;
+        this.cats()[cat.id].img = newimg;
     },
 
     updateCatLikes : function(cat, newlikes) {
-        this.cats[cat.id].numclicks = newlikes;
+        this.cats()[cat.id].numclicks(newlikes);
     },
 
     incrementClickCount : function(cat) {
-        cat.numclicks++;
+        cat.numclicks(cat.numclicks() + 1);
     }
 }
 
@@ -299,7 +351,7 @@ var octopus = {
         catDisplayView.init();
         adminView.init();
     },
-    
+
     getCurrentCat : function() {
         return model.getCurrentCat();
     },

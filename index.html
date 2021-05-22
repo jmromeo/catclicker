@@ -4,6 +4,7 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <script type='text/javascript' src='https://cdnjs.cloudflare.com/ajax/libs/knockout/3.5.0/knockout-min.js'></script>
 
     <link rel="stylesheet" href="css/catlist.css">
 </head>
@@ -24,6 +25,9 @@
         <!-- Cat Display -->
         <div class="row row-margin">
             <div class="col text-center">
+                <div>Cuteness Level: <span data-bind="text: catLevel"></span></div>
+            </div>
+            <div class="col text-center">
                 <img class="img-rounded" id="catimgview">
             </div>
         </div>
@@ -43,6 +47,20 @@
                 <p id="catcountview"></p>
             </div>
         </div>
+        <div class="row">
+            <div class="col text-center">
+                <h5 class="nicknametitle">Nicknames</h5>
+                <div data-bind="foreach: nicknames" class="nicknames">
+                    <!-- ko if: ($index() === ($parent.nicknames().length - 1)) -->
+                    <span data-bind="text: $data"></span>
+                    <!-- /ko -->     
+                    <!-- ko ifnot: ($index() === ($parent.nicknames().length - 1)) -->
+                    <span data-bind="text: $data"></span><span>,</span>
+                    <!-- /ko -->     
+                </div>
+            </div>
+        </div>
+
         <div class="row row-margin">
             <div id="adminview" class="col text-center">
             </div>
