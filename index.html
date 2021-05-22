@@ -19,7 +19,7 @@
     <div class="container">
         <!-- Cat List -->
         <div class="row">
-            <div class="col text-center" id="catlist">
+            <div class="col text-center">
                 <div data-bind="foreach: cats">
                     <!-- ko if: ($data === ($parent.currentcat())) -->
                     <button data-bind="text: $data.name, click: $parent.setCurrentCat" class="btn btn-primary"></button>

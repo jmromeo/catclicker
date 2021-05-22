@@ -85,8 +85,8 @@ var ViewModel = {
         alert("Are you crazy?! " + this.name() + " is super cute!");
     },
 
-    setCurrentCat : function() {
-        self.currentcat(this);
+    setCurrentCat : function(clickedCat) {
+        self.currentcat(clickedCat);
     },
 }
 
