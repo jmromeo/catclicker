@@ -4,11 +4,31 @@
 (function () {
 
 function Cat(id, name, img, nicknames) {
-    this.id         = id;   // ID of cat resource
-    this.name       = ko.observable(name); // Name of cat
-    this.img        = ko.observable(img);  // Cat picture
-    this.numclicks  = ko.observable(0);    // Number of times cat was liked on
-    this.nicknames  = ko.observableArray(nicknames);
+    this.id            = id;
+    this.name          = ko.observable(name);
+    this.img           = ko.observable(img);
+    this.numclicks     = ko.observable(0);
+    this.nicknames     = ko.observableArray(nicknames);
+
+    this.computeCuteness = function() {
+        if (this.numclicks() < 10) {
+            return "kinda cute!";
+        }
+        else if (this.numclicks() < 20) {
+            return "cute";
+        }
+        else if (this.numclicks() < 30) {
+            return "really cute";
+        }
+        else if (this.numclicks() < 100) {
+            return "SOOOO CUTE";
+        }
+        else {
+            return "SO FLUFFY, I'M GOING TO DIE";
+        }
+    };
+
+    this.cutenessLevel = ko.computed(this.computeCuteness, this);
 };
 
 initialCatArr = [
@@ -25,7 +45,6 @@ var ViewModel = {
 
         self.cats       = ko.observableArray(initialCatArr);
         self.currentcat = ko.observable(self.cats()[0]);
-        self.catLevel   = ko.computed(self.computeCurrentCatLevel, self);
         self.editmode   = ko.observable({
             entered: ko.observable(false),
             catname: ko.observable(""),
@@ -35,6 +54,14 @@ var ViewModel = {
         });
 
         ko.applyBindings(self);
+    },
+
+    editCat : function() {
+        this.editmode().entered(true);
+        this.editmode().catname(self.currentcat().name());
+        this.editmode().catimg(self.currentcat().img());
+        this.editmode().catlikes(self.currentcat().numclicks());
+        this.editmode().catnicknames(self.currentcat().nicknames());
     },
 
     saveEdit : function() {
@@ -50,45 +77,17 @@ var ViewModel = {
         self.editmode().entered(false);
     },
 
+    catLiked : function() {
+        this.numclicks(this.numclicks() + 1);
+    },
+
     catDisliked : function() {
         alert("Are you crazy?! " + this.name() + " is super cute!");
-    },
-
-    computeCurrentCatLevel : function() {
-        var cat = this.currentcat();
-
-        if (cat.numclicks() < 10) {
-            return "kinda cute!";
-        }
-        else if (cat.numclicks() < 20) {
-            return "cute";
-        }
-        else if (cat.numclicks() < 30) {
-            return "really cute";
-        }
-        else if (cat.numclicks() < 100) {
-            return "SOOOO CUTE";
-        }
-        else {
-            return "SO FLUFFY, I'M GOING TO DIE";
-        }
-    },
-
-    editCat : function() {
-        this.editmode().entered(true);
-        this.editmode().catname(self.currentcat().name());
-        this.editmode().catimg(self.currentcat().img());
-        this.editmode().catlikes(self.currentcat().numclicks());
-        this.editmode().catnicknames(self.currentcat().nicknames());
     },
 
     setCurrentCat : function() {
         self.currentcat(this);
     },
-
-    incrementClickCount : function() {
-        this.numclicks(this.numclicks() + 1);
-    }
 }
 
 ViewModel.init();

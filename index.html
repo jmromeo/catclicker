@@ -32,50 +32,65 @@
         </div>
 
         <!-- Cat Display -->
-        <div class="row row-margin">
-            <div class="col text-center">
-                <div>Cuteness Level: <span data-bind="text: catLevel"></span></div>
-            </div>
-            <div data-bind="with: currentcat" class="col text-center">
-                <img data-bind="attr: { src: img }" class="img-rounded" id="catimgview">
-            </div>
-        </div>
-        <div data-bind="with: currentcat" class="row likebtn-margin">
-            <div class="col text-center">
-                <button data-bind="click: $parent.incrementClickCount" class="btn-success">
-                    <i class="fa fa-thumbs-up"></i>
-                </button>
-                <button data-bind="click: $parent.catDisliked" class="btn-danger">
-                    <i class="fa fa-thumbs-down"></i>
-                </button>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col text-center">
-                <span>Likes: </span>
-                <span data-bind="text: currentcat().numclicks"></span>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col text-center">
-                <h4 class="nicknametitle">Nicknames</h5>
-                <div data-bind="with: currentcat">
-                <div data-bind="foreach: nicknames" class="nicknames">
-                    <!-- ko if: ($index() === ($parent.nicknames().length - 1)) -->
-                    <span data-bind="text: $data"></span>
-                    <!-- /ko -->     
-                    <!-- ko ifnot: ($index() === ($parent.nicknames().length - 1)) -->
-                    <span data-bind="text: $data"></span><span>,</span>
-                    <!-- /ko -->     
+        <div data-bind="with: currentcat">
+            <div class="row row-margin">
+
+                <!-- Cat Cuteness -->
+                <div class="col text-center">
+                    <div>Cuteness Level: <span data-bind="text: cutenessLevel"></span></div>
                 </div>
+
+                <!-- Cat Image -->
+                <div class="col text-center">
+                    <img data-bind="attr: { src: img }" class="img-rounded">
+                </div>
+            </div>
+
+            <!-- Cat Like Buttons -->
+            <div class="row likebtn-margin">
+                <div class="col text-center">
+                    <button data-bind="click: $parent.catLiked" class="btn-success">
+                        <i class="fa fa-thumbs-up"></i>
+                    </button>
+                    <button data-bind="click: $parent.catDisliked" class="btn-danger">
+                        <i class="fa fa-thumbs-down"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Cat Likes Display -->
+            <div class="row">
+                <div class="col text-center">
+                    <span>Likes: </span>
+                    <span data-bind="text: numclicks"></span>
+                </div>
+            </div>
+
+            <!-- Cat Nicknames Display -->
+            <div class="row">
+                <div class="col text-center">
+                    <h4 class="nicknametitle">Nicknames</h5>
+                    <div data-bind="foreach: nicknames" class="nicknames">
+                        <!-- ko if: ($index() === ($parent.nicknames().length - 1)) -->
+                        <span data-bind="text: $data"></span>
+                        <!-- /ko -->     
+                        <!-- ko ifnot: ($index() === ($parent.nicknames().length - 1)) -->
+                        <span data-bind="text: $data"></span><span>,</span>
+                        <!-- /ko -->     
+                    </div>
                 </div>
             </div>
         </div>
 
+        <!-- Edit Mode -->
         <div class="row row-margin">
+            
+            <!-- Edit Button -->
             <div class="col text-center">
                 <button data-bind="click: editCat" class="btn btn-primary">Edit Cat</button>
             </div>
+            
+            <!-- Edit Display. Only shows while in edit mode. -->
             <div class="col text-center" data-bind="if: editmode().entered">
                 <div class="row-margin form-group">
                     <label>Cat Name</label>
@@ -95,8 +110,10 @@
                 </div>
                 <button data-bind="click: saveEdit" class="btn btn-success">Save</button>
                 <button data-bind="click: cancelEdit" class="btn btn-danger">Cancel</button>
+            </div>
         </div>
     </div>
+
     <div class="margin-bottom"></div>
 
     <script src='js/app.js'></script>
