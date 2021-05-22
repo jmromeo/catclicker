@@ -278,7 +278,7 @@ var model = {
         this.cats       = ko.observableArray(this.catsArr);
         this.currentcat = ko.observable(this.cats()[0]);
         this.catLevel   = ko.computed(this.computeCurrentCatLevel, this);
-        this.nicknames  = ko.computed(this.currentCatNicknames, this);
+        //this.nicknames  = ko.computed(this.currentCatNicknames, this);
 
         ko.applyBindings(this);
     },
