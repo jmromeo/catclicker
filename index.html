@@ -51,7 +51,7 @@
             <div class="col text-center">
                 <h5 class="nicknametitle">Nicknames</h5>
                 <div data-bind="foreach: currentcat().nicknames" class="nicknames">
-                    <!-- ko if: ($index() === ($parent.currentcat().nicknames.length - 1)) -->
+                    <!-- ko if: ($index() === ($parent.currentcat().nicknames().length - 1)) -->
                     <span data-bind="text: $data"></span>
                     <!-- /ko -->     
                     <!-- ko ifnot: ($index() === ($parent.currentcat().nicknames().length - 1)) -->
